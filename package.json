@@ -1,0 +1,23 @@
+{
+  "name": "curso-api-rest-node",
+  "version": "1.0.0",
+  "description": "aprendiendo a crear api rest con nodejs, express y mongodb",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/express": "^4.17.13",
+    "bcrypt": "^5.0.1",
+    "dotenv": "^10.0.0",
+    "email-validator": "^2.0.4",
+    "express": "^4.17.1",
+    "express-validator": "^6.12.0",
+    "faker": "^5.5.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.13.1",
+    "nodemon": "^2.0.9",
+    "passport": "^0.4.1"
+  }
+}
