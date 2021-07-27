@@ -1,4 +1,3 @@
-const { compare } = require('bcrypt')
 const User = require('../models/User')
 
 async function signIn(req, res) {
@@ -24,22 +23,15 @@ async function signIn(req, res) {
 }
 
 async function logIn(req, res) {
-  const { email, password } = req.body
+  if (req.user) return res.json({ error: null, token: User.generateToken(req.user) })
 
-  try {
-    const user = await User.findOne({ email })
-
-    if (!user) res.satus(401).json({ error: `email ${user.email} not found` })
-
-    const passwordIsCorrect = await compare(password, user.password)
-
-    if (!passwordIsCorrect) res.satus(401).json({ error: `password ${user.email} is incorrect` })
-
-    res.json({ error: null, token: User.generateToken(user) })
-    //
-  } catch (error) {
-    res.status(401).json({ error })
-  }
+  res.status(501).json({ error: 'something wrong' })
 }
 
-module.exports = { signIn, logIn }
+async function access(req, res) {
+  if (req.user) return res.send('this text is extremely ultra secret')
+
+  res.status(403).json({ error: 'user incorrect' })
+}
+
+module.exports = { signIn, logIn, access }

@@ -55,7 +55,4 @@ module.exports.encryptPassword = async password => {
   return bcrypt.hash(password, salt)
 }
 
-module.exports.generateToken = user =>
-  jwt.sign(JSON.stringify(user), JWT_PASSWORD, {
-    expiresIn: '1 day'
-  })
+module.exports.generateToken = user => jwt.sign(JSON.stringify(user), JWT_PASSWORD)
