@@ -19,8 +19,10 @@ const UserSchema = new Schema(
       type: String,
       required: [true, 'No email provided'],
       validate: {
-        validator: isEmail,
-        message: props => `Received invalid email ${props.value}`
+        async validator(email) {
+          return isEmail(email) && !(await User.findOne({ email }))
+        },
+        message: props => `Received invalid or existing email ${props.value}`
       }
     },
 
@@ -40,7 +42,7 @@ const UserSchema = new Schema(
     role: {
       type: String,
       validate: {
-        validator: v => ['doctor', 'nurse', 'patient', 'administrative'].includes(v),
+        validator: v => ['doctor', 'nurse', 'patient', 'administrative', 'dev'].includes(v),
         message: props => `unexpecte role type: ${props.value}`
       }
     }
@@ -48,11 +50,28 @@ const UserSchema = new Schema(
   { versionKey: false }
 )
 
-module.exports = model('User', UserSchema)
-
-module.exports.encryptPassword = async password => {
+UserSchema.method('encrypt', async function () {
   const salt = await bcrypt.genSalt(8)
-  return bcrypt.hash(password, salt)
-}
+  this.password = bcrypt.hash(this.password, salt)
+})
 
-module.exports.generateToken = user => jwt.sign(JSON.stringify(user), JWT_PASSWORD)
+UserSchema.method('sign', function () {
+  return jwt.sign(JSON.stringify(this), JWT_PASSWORD)
+})
+
+UserSchema.method('verifyPassword', async function (pw) {
+  return pw === this.password || (await bcrypt.compare(pw, this.password))
+})
+
+UserSchema.pre('save', async function (next) {
+  try {
+    await this.validate()
+    await this.encrypt()
+    //
+  } catch (e) {
+    next(e)
+  }
+})
+
+const User = model('User', UserSchema) // important, User is used at email verification
+module.exports = User // important
